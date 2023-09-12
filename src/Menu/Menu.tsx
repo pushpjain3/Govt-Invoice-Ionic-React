@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import * as AppGeneral from "../socialcalc/AppGeneral";
 import { File, Local } from "../storage/LocalStorage";
+import { File as FileIonic} from '@ionic-native/file/ngx';
 import { isPlatform, IonToast } from "@ionic/react";
 import { EmailComposer } from "@ionic-native/email-composer";
 import { Printer } from "@ionic-native/printer";
 import { IonActionSheet, IonAlert } from "@ionic/react";
 import { saveOutline, save, mail, print } from "ionicons/icons";
+
 
 const Menu: React.FC<{
   showM: boolean;
@@ -112,28 +114,35 @@ const Menu: React.FC<{
     }
   };
 
-  const sendEmail = () => {
+
+  const sendEmail = async() => {
+    // console.log(AppGeneral.getCSVContent());
+    const csvData = AppGeneral.getCSVContent();
+    //const blob = new Blob([csvData], { type: "data:application/octet-stream;base64" });
+    const filename = 'new_data.csv';
+    
     if (isPlatform("hybrid")) {
+      console.log("Test in if");
       const emailComposer = EmailComposer;
       emailComposer.addAlias("gmail", "com.google.android.gm");
-      const content = AppGeneral.getCurrentHTMLContent();
-      // then use alias when sending email
+      const content = "Please Find attached CSV file for the invoice.";
+
+      // Attach the temporary file to the email
       emailComposer.open({
         app: "mailto",
-        to: "geetanshu2502@gmail.com",
-        cc: "erika@mustermann.de",
-        bcc: ["john@doe.com", "jane@doe.com"],
-        attachments: [],
-        subject: "Test mail",
+        attachments: [`base64:${filename}//${btoa(csvData)}`],
+        subject: "Mail for Invoice",
         body: content,
         isHtml: true,
       });
       console.log(AppGeneral.getCurrentHTMLContent());
+
     } else {
+      console.log('Test in else')
       const mailgun = require("mailgun-js");
       const mg = mailgun({
-        apiKey: "key-a128dfbe216c92500974c6d8ee1d4caa",
-        domain: "sandbox9e26c52330b343b3bb63ff465a74f156.mailgun.org",
+        apiKey: "43f0d80f540060b8381ad9c29aea087a-413e373c-67e2c210",
+        domain: "sandbox00a9a9c0f3374be49c44897669f495b2.mailgun.org",
       });
       const data = {
         from: "Excited User <me@samples.mailgun.org>",
